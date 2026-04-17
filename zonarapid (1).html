@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>ZonaRapid — Delivery a tu puerta</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --brand:#FF5722;--brand2:#FF8A65;--brand-light:#FFF3EF;
+  --green:#22C55E;--green-bg:#F0FDF4;
+  --blue:#3B82F6;--amber:#F59E0B;--red:#EF4444;
+  --dark:#1C1917;--dark2:#292524;
+  --text:#1C1917;--text2:#78716C;--text3:#A8A29E;
+  --bg:#FAF9F7;--card:#FFFFFF;
+  --border:#E7E5E4;
+  --shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.06);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.12);
+  --r:14px;--r-sm:10px;--r-xs:8px;
+  --font:'Plus Jakarta Sans',sans-serif;
+  --display:'Sora',sans-serif;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg)}
+body{font-family:var(--font);font-size:14px;color:var(--text);display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative;overflow:hidden}
+button{font-family:var(--font);cursor:pointer;border:none;outline:none}
+input,select,textarea{font-family:var(--font);outline:none}
+img{display:block}
+::-webkit-scrollbar{display:none}
+*{scrollbar-width:none}
+
+/* ── VIEWS ── */
+.view{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--bg);transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);z-index:1;overflow:hidden}
+.view.active{transform:translateX(0);z-index:2}
+.view.prev{transform:translateX(-30%);z-index:1}
+
+/* ── TOPBAR ── */
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;position:relative}
+.topbar-title{font-family:var(--display);font-size:17px;font-weight:800;color:var(--text)}
+.back-btn{width:36px;height:36px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;cursor:pointer;transition:background .15s}
+.back-btn:active{background:var(--border)}
+.topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+/* ── SCROLL AREA ── */
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{background:var(--card);border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:max(12px,var(--safe-bottom));flex-shrink:0}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 4px;cursor:pointer;transition:color .15s}
+.nav-item span:first-child{font-size:22px;line-height:1}
+.nav-item span:last-child{font-size:10px;font-weight:600;letter-spacing:.3px;text-transform:uppercase;color:var(--text3)}
+.nav-item.active span:last-child{color:var(--brand)}
+.nav-item .cart-dot{position:relative}
+.cart-badge{position:absolute;top:-4px;right:-8px;background:var(--brand);color:#fff;border-radius:20px;font-size:10px;font-weight:800;padding:1px 5px;min-width:18px;text-align:center;line-height:1.4;display:none}
+.cart-badge.show{display:block}
+
+/* ── ONBOARDING ── */
+#v-onboard{background:linear-gradient(160deg,#FF5722 0%,#FF8A65 40%,#FFF3EF 100%)}
+.ob-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px 20px;text-align:center}
+.ob-logo{font-family:var(--display);font-size:42px;font-weight:800;color:#fff;letter-spacing:-1px;margin-bottom:8px}
+.ob-logo span{color:rgba(255,255,255,.65)}
+.ob-tagline{font-size:15px;color:rgba(255,255,255,.85);margin-bottom:40px;font-weight:500}
+.ob-card{background:#fff;border-radius:24px 24px 0 0;padding:28px 24px 32px;flex-shrink:0}
+.ob-label{font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;margin-bottom:8px}
+.ob-select{width:100%;padding:14px 16px;border:2px solid var(--border);border-radius:var(--r);font-size:15px;font-weight:600;color:var(--text);background:#fff;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10'%3E%3Cpath d='M1 1l7 7 7-7' stroke='%23FF5722' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;margin-bottom:14px;cursor:pointer;transition:border-color .2s}
+.ob-select:focus{border-color:var(--brand)}
+.ob-input{width:100%;padding:14px 16px;border:2px solid var(--border);border-radius:var(--r);font-size:15px;color:var(--text);background:#fff;margin-bottom:20px;transition:border-color .2s}
+.ob-input:focus{border-color:var(--brand)}
+.ob-btn{width:100%;padding:16px;background:var(--brand);color:#fff;border-radius:var(--r);font-size:16px;font-weight:800;letter-spacing:.3px;transition:all .15s;cursor:pointer}
+.ob-btn:active{transform:scale(.98);background:#E64A19}
+
+/* ── HOME ── */
+.home-header{background:var(--brand);padding:16px 16px 20px}
+.home-zone-bar{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.home-zone-pill{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700;color:#fff;display:flex;align-items:center;gap:5px;cursor:pointer}
+.home-addr{font-size:13px;color:rgba(255,255,255,.85);display:flex;align-items:center;gap:5px}
+.home-search{background:#fff;border-radius:var(--r-sm);padding:11px 14px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.home-search input{flex:1;border:none;font-size:14px;color:var(--text2);background:transparent;cursor:pointer}
+.home-search input::placeholder{color:var(--text3)}
+.section-title{font-size:17px;font-weight:800;color:var(--text);padding:18px 16px 10px;display:flex;align-items:center;justify-content:space-between}
+.section-title a{font-size:12px;font-weight:600;color:var(--brand);cursor:pointer}
+
+/* ── CATEGORY CARDS ── */
+.cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:0 16px 8px}
+.cat-card{border-radius:var(--r);padding:16px 10px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:transform .15s;position:relative;overflow:hidden}
+.cat-card:active{transform:scale(.96)}
+.cat-emoji{font-size:32px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.15))}
+.cat-name{font-size:11px;font-weight:700;text-align:center;line-height:1.3}
+.cat-count{font-size:10px;font-weight:500;opacity:.7}
+
+/* ── FEATURED SCROLL ── */
+.featured-scroll{display:flex;gap:12px;padding:0 16px 4px;overflow-x:auto}
+.feat-card{flex-shrink:0;width:160px;background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s}
+.feat-card:active{transform:scale(.97)}
+.feat-img{height:110px;display:flex;align-items:center;justify-content:center;font-size:52px}
+.feat-body{padding:10px 12px 12px}
+.feat-name{font-size:13px;font-weight:700;margin-bottom:2px;line-height:1.3}
+.feat-store{font-size:11px;color:var(--text3);margin-bottom:6px}
+.feat-row{display:flex;align-items:center;justify-content:space-between}
+.feat-price{font-size:15px;font-weight:800;color:var(--brand)}
+.feat-add{width:28px;height:28px;background:var(--brand);border-radius:50%;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center;line-height:1;flex-shrink:0;transition:background .15s}
+.feat-add:active{background:#E64A19}
+
+/* ── CATEGORY PAGE ── */
+.cat-header{padding:16px 16px 12px;background:var(--card);border-bottom:1px solid var(--border)}
+.cat-filter-row{display:flex;gap:8px;overflow-x:auto;padding:10px 16px;background:var(--card);border-bottom:1px solid var(--border)}
+.filter-chip{flex-shrink:0;padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;background:#fff;transition:all .15s;white-space:nowrap}
+.filter-chip.active{background:var(--brand);border-color:var(--brand);color:#fff}
+.product-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px}
+.prod-card{background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s}
+.prod-card:active{transform:scale(.97)}
+.prod-img{height:130px;display:flex;align-items:center;justify-content:center;font-size:60px;position:relative}
+.prod-badge{position:absolute;top:8px;left:8px;background:var(--brand);color:#fff;font-size:10px;font-weight:800;padding:3px 7px;border-radius:6px}
+.prod-body{padding:10px 12px 12px}
+.prod-name{font-size:13px;font-weight:700;margin-bottom:2px;line-height:1.3;min-height:34px}
+.prod-desc{font-size:11px;color:var(--text3);margin-bottom:8px}
+.prod-row{display:flex;align-items:center;justify-content:space-between}
+.prod-price{font-size:16px;font-weight:800;color:var(--brand)}
+.prod-add{width:32px;height:32px;background:var(--brand);border-radius:50%;color:#fff;font-size:20px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.prod-add:active{background:#E64A19;transform:scale(.92)}
+
+/* Services grid */
+.svc-list{display:flex;flex-direction:column;gap:10px;padding:12px}
+.svc-card{background:var(--card);border-radius:var(--r);padding:14px;display:flex;gap:14px;align-items:center;box-shadow:var(--shadow);cursor:pointer;transition:all .15s}
+.svc-card:active{transform:scale(.98)}
+.svc-icon{width:56px;height:56px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.svc-info{flex:1}
+.svc-name{font-size:15px;font-weight:700;margin-bottom:2px}
+.svc-desc{font-size:12px;color:var(--text2);margin-bottom:6px}
+.svc-meta{display:flex;gap:10px;align-items:center}
+.svc-price{font-size:14px;font-weight:800;color:var(--brand)}
+.svc-time{font-size:11px;color:var(--text3);background:var(--bg);padding:3px 8px;border-radius:20px;font-weight:600}
+.svc-arrow{font-size:18px;color:var(--text3);flex-shrink:0}
+
+/* ── CART OVERLAY ── */
+#cart-overlay{position:fixed;inset:0;z-index:100;display:none}
+#cart-overlay.open{display:flex;flex-direction:column;justify-content:flex-end}
+.cart-backdrop{position:absolute;inset:0;background:rgba(0,0,0,.45);animation:fadeIn .25s ease}
+.cart-sheet{background:var(--card);border-radius:24px 24px 0 0;max-height:80vh;display:flex;flex-direction:column;position:relative;z-index:1;animation:slideUp .3s cubic-bezier(.4,0,.2,1);padding-bottom:max(20px,var(--safe-bottom))}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.cart-header{padding:16px 20px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.cart-title{font-size:18px;font-weight:800}
+.cart-close{width:32px;height:32px;background:var(--bg);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer}
+.cart-items{overflow-y:auto;flex:1;padding:8px 16px}
+.cart-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.cart-item-emoji{font-size:36px;flex-shrink:0;width:52px;height:52px;background:var(--bg);border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center}
+.cart-item-info{flex:1}
+.cart-item-name{font-size:14px;font-weight:700;margin-bottom:2px}
+.cart-item-price{font-size:13px;color:var(--brand);font-weight:700}
+.cart-item-qty{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.qty-btn{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;cursor:pointer;transition:all .15s}
+.qty-minus{background:var(--bg);color:var(--text2)}
+.qty-plus{background:var(--brand);color:#fff}
+.qty-num{font-size:15px;font-weight:800;min-width:20px;text-align:center}
+.cart-footer{padding:16px 20px 8px;border-top:1px solid var(--border)}
+.cart-total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px;color:var(--text2)}
+.cart-total-row.grand{font-size:17px;font-weight:800;color:var(--text);margin-bottom:14px}
+.cart-checkout-btn{width:100%;padding:16px;background:var(--brand);color:#fff;border-radius:var(--r);font-size:16px;font-weight:800;letter-spacing:.3px;transition:all .15s}
+.cart-checkout-btn:active{background:#E64A19;transform:scale(.98)}
+.empty-cart{text-align:center;padding:40px 20px;color:var(--text3)}
+.empty-cart .ec-emoji{font-size:56px;margin-bottom:12px}
+.empty-cart p{font-size:15px;font-weight:600}
+
+/* ── CHECKOUT ── */
+#v-checkout .scroll{padding:16px}
+.checkout-section{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.checkout-section h3{font-size:14px;font-weight:800;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.input-label{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.input-field{width:100%;padding:12px 14px;border:2px solid var(--border);border-radius:var(--r-sm);font-size:14px;color:var(--text);background:#fff;margin-bottom:10px;transition:border-color .2s;font-family:var(--font)}
+.input-field:focus{border-color:var(--brand)}
+.input-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.time-slots{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.time-slot{padding:8px 14px;border:2px solid var(--border);border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;background:#fff;white-space:nowrap}
+.time-slot.active{background:var(--brand);border-color:var(--brand);color:#fff}
+.payment-methods{display:flex;flex-direction:column;gap:8px}
+.pay-method{display:flex;align-items:center;gap:12px;padding:12px 14px;border:2px solid var(--border);border-radius:var(--r-sm);cursor:pointer;transition:all .15s}
+.pay-method.active{border-color:var(--brand);background:var(--brand-light)}
+.pay-icon{font-size:24px}
+.pay-label{font-size:14px;font-weight:700;flex:1}
+.pay-radio{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.pay-method.active .pay-radio{border-color:var(--brand)}
+.pay-radio-dot{width:8px;height:8px;border-radius:50%;background:var(--brand);display:none}
+.pay-method.active .pay-radio-dot{display:block}
+.order-summary{margin-bottom:4px}
+.summary-item{display:flex;justify-content:space-between;font-size:13px;color:var(--text2);padding:5px 0}
+.summary-total{display:flex;justify-content:space-between;font-size:17px;font-weight:800;padding:10px 0 4px;border-top:1px solid var(--border);margin-top:6px}
+.place-order-btn{width:100%;padding:18px;background:var(--brand);color:#fff;border-radius:var(--r);font-size:17px;font-weight:800;margin-top:16px;transition:all .15s;letter-spacing:.3px}
+.place-order-btn:active{background:#E64A19;transform:scale(.98)}
+
+/* ── TRACKING ── */
+#v-tracking{background:var(--bg)}
+.tracking-hero{background:linear-gradient(160deg,#22C55E,#16A34A);padding:32px 24px 28px;text-align:center}
+.tracking-emoji{font-size:64px;margin-bottom:12px;animation:bounce .8s ease infinite alternate}
+@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+.tracking-title{font-family:var(--display);font-size:24px;font-weight:800;color:#fff;margin-bottom:6px}
+.tracking-sub{font-size:14px;color:rgba(255,255,255,.85)}
+.tracking-id{background:rgba(255,255,255,.2);border-radius:20px;padding:6px 16px;display:inline-block;font-size:13px;font-weight:700;color:#fff;margin-top:10px;letter-spacing:1px}
+.tracking-card{background:var(--card);border-radius:var(--r);margin:16px;padding:20px;box-shadow:var(--shadow)}
+.tracking-steps{display:flex;flex-direction:column;gap:0}
+.t-step{display:flex;gap:14px;align-items:flex-start}
+.t-step-left{display:flex;flex-direction:column;align-items:center;gap:0}
+.t-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;position:relative;z-index:1}
+.t-dot.done{background:var(--green);color:#fff}
+.t-dot.active{background:var(--brand);color:#fff;animation:pulseDot 1.5s ease infinite}
+@keyframes pulseDot{0%,100%{box-shadow:0 0 0 0 rgba(255,87,34,.4)}50%{box-shadow:0 0 0 8px rgba(255,87,34,0)}}
+.t-dot.pending{background:var(--bg);border:2px solid var(--border);color:var(--text3)}
+.t-line{width:2px;flex:1;background:var(--border);margin:0;min-height:32px}
+.t-line.done{background:var(--green)}
+.t-content{padding:6px 0 28px}
+.t-title{font-size:14px;font-weight:700;margin-bottom:2px}
+.t-sub{font-size:12px;color:var(--text3)}
+.t-time{font-size:11px;font-weight:600;color:var(--brand);margin-top:2px}
+.tracking-delivery-info{background:var(--bg);border-radius:var(--r-sm);padding:14px;margin-top:12px;display:flex;align-items:center;gap:12px}
+.delivery-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#FF5722,#FF8A65);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.delivery-name{font-size:14px;font-weight:700}
+.delivery-sub{font-size:12px;color:var(--text2)}
+.delivery-call{width:36px;height:36px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;margin-left:auto;cursor:pointer}
+.back-home-btn{margin:0 16px 20px;width:calc(100% - 32px);padding:16px;background:var(--brand);color:#fff;border-radius:var(--r);font-size:16px;font-weight:800;transition:all .15s}
+.back-home-btn:active{background:#E64A19}
+
+/* ── SERVICE BOOKING ── */
+#v-service .scroll{padding:16px}
+.svc-booking-header{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:12px;display:flex;gap:14px;align-items:center;box-shadow:var(--shadow)}
+.svc-booking-icon{width:64px;height:64px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:34px;flex-shrink:0}
+.svc-booking-name{font-size:18px;font-weight:800;margin-bottom:2px}
+.svc-booking-price{font-size:14px;color:var(--brand);font-weight:700}
+.calendar-strip{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px}
+.cal-day{flex-shrink:0;width:52px;height:64px;border-radius:var(--r-sm);border:2px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;background:#fff;transition:all .15s}
+.cal-day.active{background:var(--brand);border-color:var(--brand)}
+.cal-day-name{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase}
+.cal-day-num{font-size:20px;font-weight:800;color:var(--text)}
+.cal-day.active .cal-day-name,.cal-day.active .cal-day-num{color:#fff}
+.hour-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px}
+.hour-slot{padding:10px 8px;border:2px solid var(--border);border-radius:var(--r-sm);text-align:center;font-size:13px;font-weight:700;cursor:pointer;background:#fff;transition:all .15s}
+.hour-slot.active{background:var(--brand);border-color:var(--brand);color:#fff}
+.hour-slot.unavail{background:var(--bg);color:var(--text3);cursor:not-allowed}
+
+/* ── SEARCH OVERLAY ── */
+#search-overlay{position:fixed;inset:0;z-index:50;background:var(--card);display:none;flex-direction:column}
+#search-overlay.open{display:flex}
+.search-bar{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.search-input-wrap{flex:1;display:flex;align-items:center;gap:8px;background:var(--bg);border-radius:var(--r-sm);padding:10px 14px}
+.search-input-wrap input{flex:1;border:none;background:transparent;font-size:15px;color:var(--text)}
+.search-results{overflow-y:auto;flex:1;padding:8px}
+.search-result-item{display:flex;gap:12px;align-items:center;padding:12px;border-radius:var(--r-sm);cursor:pointer;transition:background .15s}
+.search-result-item:hover,.search-result-item:active{background:var(--bg)}
+.search-result-emoji{width:48px;height:48px;background:var(--bg);border-radius:var(--r-xs);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+
+/* ── ORDERS ── */
+#v-orders .scroll{padding:12px}
+.order-card{background:var(--card);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);cursor:pointer;transition:transform .15s}
+.order-card:active{transform:scale(.98)}
+.order-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+.order-num{font-size:15px;font-weight:800}
+.order-status{font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px}
+.status-delivered{background:var(--green-bg);color:var(--green)}
+.status-transit{background:#FEF3C7;color:#B45309}
+.order-items{font-size:13px;color:var(--text2);margin-bottom:8px}
+.order-footer{display:flex;justify-content:space-between;align-items:center}
+.order-total{font-size:15px;font-weight:800;color:var(--brand)}
+.order-date{font-size:11px;color:var(--text3);font-weight:600}
+
+/* ── PROFILE ── */
+#v-profile .scroll{padding:16px}
+.profile-hero{background:linear-gradient(135deg,var(--brand),var(--brand2));border-radius:var(--r);padding:24px;margin-bottom:12px;display:flex;gap:16px;align-items:center}
+.profile-avatar{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:32px;flex-shrink:0;border:3px solid rgba(255,255,255,.5)}
+.profile-name{font-size:20px;font-weight:800;color:#fff;margin-bottom:2px}
+.profile-zone{font-size:13px;color:rgba(255,255,255,.8);font-weight:600}
+.profile-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.stat-card{background:var(--card);border-radius:var(--r-sm);padding:14px;text-align:center;box-shadow:var(--shadow)}
+.stat-num{font-size:22px;font-weight:800;color:var(--brand);margin-bottom:2px}
+.stat-label{font-size:11px;color:var(--text2);font-weight:600}
+.menu-list{background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
+.menu-item{display:flex;align-items:center;gap:14px;padding:15px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.menu-item:last-child{border-bottom:none}
+.menu-item:active{background:var(--bg)}
+.menu-icon{font-size:22px;width:36px;text-align:center;flex-shrink:0}
+.menu-label{font-size:14px;font-weight:600;flex:1}
+.menu-arrow{color:var(--text3);font-size:16px}
+.menu-badge{background:var(--brand);color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:20px}
+
+/* ── PROMO BANNERS ── */
+.promo-scroll{display:flex;gap:12px;padding:0 16px 4px;overflow-x:auto}
+.promo-banner{flex-shrink:0;width:260px;height:100px;border-radius:var(--r);overflow:hidden;position:relative;cursor:pointer}
+.promo-banner .pb-bg{position:absolute;inset:0;display:flex;align-items:center;padding:16px}
+.promo-banner .pb-text{color:#fff;z-index:1;position:relative}
+.promo-banner .pb-title{font-size:16px;font-weight:800;line-height:1.2;margin-bottom:3px}
+.promo-banner .pb-sub{font-size:12px;opacity:.85}
+.promo-banner .pb-emoji{position:absolute;right:12px;bottom:-4px;font-size:54px;opacity:.8}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--dark);color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;font-weight:600;z-index:200;opacity:0;transition:all .3s;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── PROVIDER BADGE ── */
+.provider-bar{background:var(--brand-light);border-bottom:1px solid rgba(255,87,34,.15);padding:8px 16px;display:flex;align-items:center;gap:8px}
+.provider-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
+.provider-text{font-size:12px;font-weight:600;color:var(--brand)}
+
+/* ── UTILITY ── */
+.flex-row{display:flex;align-items:center;gap:8px}
+.star{color:#F59E0B}
+.divider{height:8px;background:var(--bg);margin:0 -16px}
+</style>
+</head>
+<body>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast"></div>
+
+<!-- ══ SEARCH OVERLAY ══ -->
+<div id="search-overlay">
+  <div class="search-bar">
+    <div class="search-input-wrap">
+      <span>🔍</span>
+      <input id="search-input" placeholder="Buscar productos o servicios…" oninput="doSearch(this.value)" autofocus/>
+    </div>
+    <button onclick="closeSearch()" style="padding:8px 12px;background:transparent;color:var(--text2);font-size:14px;font-weight:600">Cancelar</button>
+  </div>
+  <div class="search-results" id="search-results"></div>
+</div>
+
+<!-- ══ CART OVERLAY ══ -->
+<div id="cart-overlay">
+  <div class="cart-backdrop" onclick="closeCart()"></div>
+  <div class="cart-sheet">
+    <div class="cart-header">
+      <div class="cart-title">🛒 Tu carrito</div>
+      <div class="cart-close" onclick="closeCart()">✕</div>
+    </div>
+    <div class="cart-items" id="cart-items-list"></div>
+    <div class="cart-footer" id="cart-footer"></div>
+  </div>
+</div>
+
+<!-- ══ VIEW: ONBOARDING ══ -->
+<div class="view active" id="v-onboard">
+  <div class="ob-hero">
+    <div class="ob-logo">Zona<span>Rapid</span></div>
+    <div class="ob-tagline">Tu zona · Tu tienda · Tu puerta 🚀</div>
+  </div>
+  <div class="ob-card">
+    <div class="ob-label">¿A qué zona deseas recibir?</div>
+    <select class="ob-select" id="zone-select">
+      <option value="">Selecciona tu zona…</option>
+      <option value="z1">📍 Zona 1 — Santa Tecla Centro</option>
+      <option value="z2">📍 Zona 2 — San Salvador Norte</option>
+      <option value="z3">📍 Zona 3 — Antiguo Cuscatlán</option>
+      <option value="z4">📍 Zona 4 — San Salvador Sur</option>
+      <option value="z5">📍 Zona 5 — Santa Ana</option>
+    </select>
+    <div class="ob-label">Dirección de entrega</div>
+    <input class="ob-input" id="addr-input" placeholder="Ej: Col. Escalón, 85 Av. Norte #220"/>
+    <button class="ob-btn" onclick="startApp()">Comenzar →</button>
+  </div>
+</div>
+
+<!-- ══ VIEW: HOME ══ -->
+<div class="view" id="v-home">
+  <div class="home-header">
+    <div class="home-zone-bar">
+      <div class="home-zone-pill" onclick="goTo('v-onboard')">📍 <span id="home-zone-label">Santa Tecla</span> ▾</div>
+      <div class="home-addr" id="home-addr-label">🏠 Mi dirección</div>
+    </div>
+    <div class="home-search" onclick="openSearch()">
+      <span>🔍</span>
+      <input placeholder="Busca productos, servicios…" readonly/>
+    </div>
+  </div>
+  <div class="scroll">
+    <!-- Provider bar -->
+    <div class="provider-bar">
+      <div class="provider-dot"></div>
+      <div class="provider-text" id="home-provider">Proveedor Zona 1 — Entrega en 25–40 min</div>
+    </div>
+
+    <!-- Promos -->
+    <div style="padding-top:14px">
+      <div class="promo-scroll">
+        <div class="promo-banner" onclick="openCategory('super')">
+          <div class="pb-bg" style="background:linear-gradient(120deg,#FF5722,#FF8A65)">
+            <div class="pb-text"><div class="pb-title">Compras del día</div><div class="pb-sub">Envío gratis en tu 1er pedido</div></div>
+          </div>
+          <div class="pb-emoji">🛒</div>
+        </div>
+        <div class="promo-banner" onclick="openCategory('servicios')">
+          <div class="pb-bg" style="background:linear-gradient(120deg,#3B82F6,#6366F1)">
+            <div class="pb-text"><div class="pb-title">Servicios del Hogar</div><div class="pb-sub">Plomeros y más disponibles hoy</div></div>
+          </div>
+          <div class="pb-emoji">🔧</div>
+        </div>
+        <div class="promo-banner" onclick="openCategory('dollar')">
+          <div class="pb-bg" style="background:linear-gradient(120deg,#F59E0B,#EF4444)">
+            <div class="pb-text"><div class="pb-title">Todo a $1</div><div class="pb-sub">Más de 80 productos</div></div>
+          </div>
+          <div class="pb-emoji">⭐</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="section-title">Categorías</div>
+    <div class="cat-grid">
+      <div class="cat-card" style="background:#FFF3EF" onclick="openCategory('super')">
+        <div class="cat-emoji">🛒</div>
+        <div class="cat-name" style="color:#C2410C">Supermercado</div>
+        <div class="cat-count" style="color:#C2410C">142 productos</div>
+      </div>
+      <div class="cat-card" style="background:#EFF6FF" onclick="openCategory('farmacia')">
+        <div class="cat-emoji">💊</div>
+        <div class="cat-name" style="color:#1D4ED8">Farmacia</div>
+        <div class="cat-count" style="color:#1D4ED8">89 productos</div>
+      </div>
+      <div class="cat-card" style="background:#F0FDF4" onclick="openCategory('ferreteria')">
+        <div class="cat-emoji">🔧</div>
+        <div class="cat-name" style="color:#166534">Ferretería</div>
+        <div class="cat-count" style="color:#166534">76 productos</div>
+      </div>
+      <div class="cat-card" style="background:#FFFBEB" onclick="openCategory('dollar')">
+        <div class="cat-emoji">⭐</div>
+        <div class="cat-name" style="color:#92400E">Todo $1</div>
+        <div class="cat-count" style="color:#92400E">83 productos</div>
+      </div>
+      <div class="cat-card" style="background:#F5F3FF" onclick="openCategory('servicios')">
+        <div class="cat-emoji">🏠</div>
+        <div class="cat-name" style="color:#5B21B6">Servicios</div>
+        <div class="cat-count" style="color:#5B21B6">8 servicios</div>
+      </div>
+      <div class="cat-card" style="background:#FFF1F2" onclick="openCategory('mascotas')">
+        <div class="cat-emoji">🐾</div>
+        <div class="cat-name" style="color:#9F1239">Mascotas</div>
+        <div class="cat-count" style="color:#9F1239">34 productos</div>
+      </div>
+    </div>
+
+    <!-- Featured -->
+    <div class="section-title">Más pedidos hoy <a onclick="openCategory('super')">Ver todo</a></div>
+    <div class="featured-scroll" id="featured-row"></div>
+
+    <div class="divider"></div>
+
+    <!-- Services preview -->
+    <div class="section-title">Servicios disponibles ahora <a onclick="openCategory('servicios')">Ver todo</a></div>
+    <div style="padding:0 12px 16px">
+      <div class="svc-card" onclick="openService('plomero')">
+        <div class="svc-icon" style="background:#EFF6FF">🔧</div>
+        <div class="svc-info">
+          <div class="svc-name">Plomero Certificado</div>
+          <div class="svc-desc">Reparaciones, instalaciones, fugas</div>
+          <div class="svc-meta">
+            <div class="svc-price">Desde $25</div>
+            <div class="svc-time">⏰ Hoy disponible</div>
+          </div>
+        </div>
+        <div class="svc-arrow">›</div>
+      </div>
+      <div class="svc-card" onclick="openService('limpieza')">
+        <div class="svc-icon" style="background:#F0FDF4">🧹</div>
+        <div class="svc-info">
+          <div class="svc-name">Limpieza del Hogar</div>
+          <div class="svc-desc">Limpieza profunda, regular o por horas</div>
+          <div class="svc-meta">
+            <div class="svc-price">Desde $18/hr</div>
+            <div class="svc-time">⏰ Hoy disponible</div>
+          </div>
+        </div>
+        <div class="svc-arrow">›</div>
+      </div>
+    </div>
+    <div style="height:80px"></div>
+  </div>
+  <div class="bottom-nav" id="home-nav">
+    <div class="nav-item active" onclick="switchTab('home')"><span>🏠</span><span>Inicio</span></div>
+    <div class="nav-item" onclick="switchTab('search')"><span>🔍</span><span>Buscar</span></div>
+    <div class="nav-item" onclick="switchTab('cart')"><span><span style="position:relative">🛒<span class="cart-badge" id="cart-badge-nav">0</span></span></span><span>Carrito</span></div>
+    <div class="nav-item" onclick="switchTab('profile')"><span>👤</span><span>Perfil</span></div>
+  </div>
+</div>
+
+<!-- ══ VIEW: CATEGORY ══ -->
+<div class="view" id="v-category">
+  <div class="topbar">
+    <div class="back-btn" onclick="goBack()">←</div>
+    <div class="topbar-title" id="cat-title">Supermercado</div>
+    <div class="topbar-right">
+      <div onclick="openCart()" style="position:relative;cursor:pointer;font-size:22px">🛒<span class="cart-badge" id="cart-badge-cat">0</span></div>
+    </div>
+  </div>
+  <div class="cat-filter-row" id="cat-filters"></div>
+  <div class="provider-bar">
+    <div class="provider-dot"></div>
+    <div class="provider-text" id="cat-provider">Proveedor activo en tu zona</div>
+  </div>
+  <div class="scroll">
+    <div id="cat-products-grid"></div>
+    <div style="height:20px"></div>
+  </div>
+</div>
+
+<!-- ══ VIEW: SERVICE BOOKING ══ -->
+<div class="view" id="v-service">
+  <div class="topbar">
+    <div class="back-btn" onclick="goBack()">←</div>
+    <div class="topbar-title" id="svc-title">Reservar Servicio</div>
+  </div>
+  <div class="scroll">
+    <div class="svc-booking-header" id="svc-booking-header"></div>
+    <div class="checkout-section">
+      <h3>📅 Selecciona el día</h3>
+      <div class="calendar-strip" id="cal-strip"></div>
+    </div>
+    <div class="checkout-section">
+      <h3>⏰ Horario disponible</h3>
+      <div class="hour-slots" id="hour-slots"></div>
+    </div>
+    <div class="checkout-section">
+      <h3>📍 Dirección del servicio</h3>
+      <input class="input-field" id="svc-addr" placeholder="Dirección donde se realizará el servicio"/>
+      <div class="input-label">Descripción del problema (opcional)</div>
+      <textarea class="input-field" id="svc-notes" rows="3" placeholder="Describe brevemente lo que necesitas…" style="resize:none"></textarea>
+    </div>
+    <div class="checkout-section">
+      <h3>💳 Método de pago</h3>
+      <div class="payment-methods" id="svc-payment"></div>
+    </div>
+    <div style="padding:0 16px 32px">
+      <button class="place-order-btn" onclick="bookService()">Confirmar Reserva →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VIEW: CHECKOUT ══ -->
+<div class="view" id="v-checkout">
+  <div class="topbar">
+    <div class="back-btn" onclick="goBack()">←</div>
+    <div class="topbar-title">Finalizar pedido</div>
+  </div>
+  <div class="scroll">
+    <div class="checkout-section">
+      <h3>📍 Dirección de entrega</h3>
+      <input class="input-field" id="co-addr" placeholder="Calle y número"/>
+      <div class="input-grid">
+        <input class="input-field" id="co-ref" placeholder="Referencia"/>
+        <input class="input-field" id="co-phone" placeholder="Teléfono"/>
+      </div>
+    </div>
+    <div class="checkout-section">
+      <h3>⏰ Hora de entrega</h3>
+      <div class="time-slots" id="time-slots"></div>
+    </div>
+    <div class="checkout-section">
+      <h3>💳 Método de pago</h3>
+      <div class="payment-methods" id="payment-methods"></div>
+    </div>
+    <div class="checkout-section">
+      <h3>🧾 Resumen del pedido</h3>
+      <div id="order-summary-list"></div>
+    </div>
+    <div style="padding:0 16px 32px">
+      <button class="place-order-btn" onclick="placeOrder()">Pagar y confirmar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VIEW: TRACKING ══ -->
+<div class="view" id="v-tracking">
+  <div class="scroll">
+    <div class="tracking-hero">
+      <div class="tracking-emoji">📦</div>
+      <div class="tracking-title">¡Pedido confirmado!</div>
+      <div class="tracking-sub">Tu pedido está en camino</div>
+      <div class="tracking-id" id="track-order-id">ORDEN #ZR-0000</div>
+    </div>
+    <div class="tracking-card">
+      <div class="tracking-steps" id="tracking-steps"></div>
+      <div class="tracking-delivery-info">
+        <div class="delivery-avatar">🏍</div>
+        <div>
+          <div class="delivery-name" id="driver-name">Carlos M.</div>
+          <div class="delivery-sub">Tu repartidor asignado</div>
+        </div>
+        <div class="delivery-call">📞</div>
+      </div>
+    </div>
+    <button class="back-home-btn" onclick="goHome()">Volver al inicio</button>
+  </div>
+</div>
+
+<!-- ══ VIEW: ORDERS ══ -->
+<div class="view" id="v-orders">
+  <div class="topbar">
+    <div class="back-btn" onclick="goBack()">←</div>
+    <div class="topbar-title">Mis pedidos</div>
+  </div>
+  <div class="scroll" id="orders-list" style="padding:12px"></div>
+</div>
+
+<!-- ══ VIEW: PROFILE ══ -->
+<div class="view" id="v-profile">
+  <div class="topbar"><div class="topbar-title" style="margin:0 auto">Mi cuenta</div></div>
+  <div class="scroll">
+    <div class="profile-hero">
+      <div class="profile-avatar">👤</div>
+      <div>
+        <div class="profile-name" id="profile-zone-name">Santa Tecla</div>
+        <div class="profile-zone" id="profile-addr">Mi dirección guardada</div>
+      </div>
+    </div>
+    <div class="profile-stats">
+      <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">Pedidos</div></div>
+      <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Servicios</div></div>
+      <div class="stat-card"><div class="stat-num">$0</div><div class="stat-label">Ahorrado</div></div>
+    </div>
+    <div class="menu-list">
+      <div class="menu-item" onclick="showView('v-orders');buildOrders()">
+        <div class="menu-icon">📦</div><div class="menu-label">Mis pedidos</div><div class="menu-arrow">›</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-icon">📍</div><div class="menu-label">Mis direcciones</div><div class="menu-arrow">›</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-icon">💳</div><div class="menu-label">Métodos de pago</div><div class="menu-arrow">›</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-icon">🔔</div><div class="menu-label">Notificaciones</div>
+        <div class="menu-badge">3</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-icon">❓</div><div class="menu-label">Ayuda y soporte</div><div class="menu-arrow">›</div>
+      </div>
+      <div class="menu-item" onclick="goTo('v-onboard')">
+        <div class="menu-icon">🔄</div><div class="menu-label">Cambiar zona</div><div class="menu-arrow">›</div>
+      </div>
+    </div>
+    <div style="height:30px"></div>
+  </div>
+  <div class="bottom-nav">
+    <div class="nav-item" onclick="goHome()"><span>🏠</span><span>Inicio</span></div>
+    <div class="nav-item" onclick="switchTab('search')"><span>🔍</span><span>Buscar</span></div>
+    <div class="nav-item" onclick="switchTab('cart')"><span>🛒</span><span>Carrito</span></div>
+    <div class="nav-item active"><span>👤</span><span>Perfil</span></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════
+// DATA
+// ═══════════════════════════════
+var ZONES = {
+  z1:{name:'Santa Tecla Centro',  provider:'Minimarket El Ángel · Ferretería Ramos · Farmacia San José',short:'Santa Tecla', driver:'Carlos M.'},
+  z2:{name:'San Salvador Norte',  provider:'Super Express Norte · Farmacia Cruz Verde',short:'SS Norte', driver:'Roberto A.'},
+  z3:{name:'Antiguo Cuscatlán',   provider:'Bodega Premium AC · Farmacity',short:'Antiguo Cusc.', driver:'Miguel E.'},
+  z4:{name:'San Salvador Sur',    provider:'Multistore Sur · Droguería Sur',short:'SS Sur', driver:'Julio P.'},
+  z5:{name:'Santa Ana',           provider:'Distribuidora Maya · Farmacia Central SA',short:'Santa Ana', driver:'Pedro H.'},
+};
+
+var PRODUCTS = {
+  super:[
+    {id:'s1',name:'Leche entera 1L',emoji:'🥛',price:1.25,cat:'Lácteos',badge:''},
+    {id:'s2',name:'Pan de Molde',emoji:'🍞',price:1.85,cat:'Panadería',badge:'⭐ Top'},
+    {id:'s3',name:'Huevos x12',emoji:'🥚',price:2.50,cat:'Básicos',badge:''},
+    {id:'s4',name:'Arroz integral 1kg',emoji:'🌾',price:1.75,cat:'Básicos',badge:''},
+    {id:'s5',name:'Pollo entero',emoji:'🍗',price:5.50,cat:'Carnes',badge:'🔥 Oferta'},
+    {id:'s6',name:'Manzanas x6',emoji:'🍎',price:2.25,cat:'Frutas',badge:''},
+    {id:'s7',name:'Tomates 500g',emoji:'🍅',price:0.95,cat:'Verduras',badge:''},
+    {id:'s8',name:'Aceite vegetal 1L',emoji:'🫙',price:2.10,cat:'Básicos',badge:''},
+    {id:'s9',name:'Detergente 1kg',emoji:'🧼',price:3.25,cat:'Limpieza',badge:''},
+    {id:'s10',name:'Refresco 2L',emoji:'🥤',price:1.50,cat:'Bebidas',badge:''},
+    {id:'s11',name:'Papel higiénico x4',emoji:'🧻',price:2.75,cat:'Higiene',badge:''},
+    {id:'s12',name:'Café molido 250g',emoji:'☕',price:3.50,cat:'Bebidas',badge:'⭐ Top'},
+  ],
+  farmacia:[
+    {id:'f1',name:'Paracetamol 500mg x20',emoji:'💊',price:1.50,cat:'Analgésicos',badge:''},
+    {id:'f2',name:'Ibuprofeno 400mg x10',emoji:'💊',price:1.25,cat:'Analgésicos',badge:''},
+    {id:'f3',name:'Vitamina C 1000mg',emoji:'🍊',price:4.50,cat:'Vitaminas',badge:'⭐ Top'},
+    {id:'f4',name:'Termómetro digital',emoji:'🌡️',price:8.99,cat:'Equipos',badge:''},
+    {id:'f5',name:'Alcohol 70% 500ml',emoji:'🧴',price:2.25,cat:'Antisépticos',badge:''},
+    {id:'f6',name:'Banda adhesiva x20',emoji:'🩹',price:1.75,cat:'Primeros Aux.',badge:''},
+    {id:'f7',name:'Loratadina 10mg x10',emoji:'💊',price:1.95,cat:'Antialérgicos',badge:''},
+    {id:'f8',name:'Omeprazol 20mg x14',emoji:'💊',price:3.50,cat:'Gastro',badge:''},
+    {id:'f9',name:'Crema hidratante 200ml',emoji:'🧴',price:5.99,cat:'Dermatolg.',badge:''},
+    {id:'f10',name:'Mascarillas x50',emoji:'😷',price:6.99,cat:'Protección',badge:'🔥 Oferta'},
+  ],
+  ferreteria:[
+    {id:'t1',name:'Cinta de aislar',emoji:'🔌',price:1.50,cat:'Eléctrico',badge:''},
+    {id:'t2',name:'Bombillo LED 9W',emoji:'💡',price:2.75,cat:'Iluminación',badge:''},
+    {id:'t3',name:'Clavos 1" 1lb',emoji:'🔩',price:1.25,cat:'Fijaciones',badge:''},
+    {id:'t4',name:'Broca para pared 8mm',emoji:'🔧',price:1.99,cat:'Herramientas',badge:''},
+    {id:'t5',name:'Tubo PVC 1/2" x3m',emoji:'🪣',price:3.50,cat:'Plomería',badge:''},
+    {id:'t6',name:'Llave inglesa 12"',emoji:'🔧',price:12.99,cat:'Herramientas',badge:'⭐ Top'},
+    {id:'t7',name:'Silicón blanco 280ml',emoji:'🧴',price:4.25,cat:'Adhesivos',badge:''},
+    {id:'t8',name:'Pintura blanca 1gal',emoji:'🪣',price:14.99,cat:'Pintura',badge:''},
+    {id:'t9',name:'Lija #120 hoja',emoji:'📋',price:0.75,cat:'Acabados',badge:''},
+    {id:'t10',name:'Tomacorriente doble',emoji:'🔌',price:3.25,cat:'Eléctrico',badge:''},
+  ],
+  dollar:[
+    {id:'d1',name:'Esponja de cocina x3',emoji:'🧽',price:1.00,cat:'Cocina',badge:''},
+    {id:'d2',name:'Bolsas de basura x20',emoji:'🗑️',price:1.00,cat:'Hogar',badge:''},
+    {id:'d3',name:'Velas aromáticas x2',emoji:'🕯️',price:1.00,cat:'Decoración',badge:''},
+    {id:'d4',name:'Clips de colores x50',emoji:'📎',price:1.00,cat:'Oficina',badge:''},
+    {id:'d5',name:'Jabón de manos 250ml',emoji:'🧴',price:1.00,cat:'Higiene',badge:'⭐ Top'},
+    {id:'d6',name:'Porta fotos plástico',emoji:'🖼️',price:1.00,cat:'Decoración',badge:''},
+    {id:'d7',name:'Calculadora básica',emoji:'🧮',price:1.00,cat:'Oficina',badge:''},
+    {id:'d8',name:'Cepillo de dientes x2',emoji:'🪥',price:1.00,cat:'Higiene',badge:''},
+    {id:'d9',name:'Pila AA x4',emoji:'🔋',price:1.00,cat:'Electrónico',badge:'🔥 Oferta'},
+    {id:'d10',name:'Pinzas de ropa x12',emoji:'🧺',price:1.00,cat:'Hogar',badge:''},
+    {id:'d11',name:'Recipiente plástico',emoji:'📦',price:1.00,cat:'Cocina',badge:''},
+    {id:'d12',name:'Bloc de notas A5',emoji:'📓',price:1.00,cat:'Oficina',badge:''},
+  ],
+  mascotas:[
+    {id:'m1',name:'Alimento perro 500g',emoji:'🐕',price:3.99,cat:'Perros',badge:'⭐ Top'},
+    {id:'m2',name:'Alimento gato 400g',emoji:'🐈',price:3.50,cat:'Gatos',badge:''},
+    {id:'m3',name:'Arena para gatos 2kg',emoji:'🐱',price:4.25,cat:'Gatos',badge:''},
+    {id:'m4',name:'Juguete pelota perro',emoji:'🎾',price:2.99,cat:'Juguetes',badge:''},
+    {id:'m5',name:'Antiparasitario x3',emoji:'💊',price:5.99,cat:'Salud',badge:''},
+    {id:'m6',name:'Correa retráctil 3m',emoji:'🦮',price:8.99,cat:'Accesorios',badge:''},
+  ]
+};
+
+var SERVICES = [
+  {id:'plomero',name:'Plomero Certificado',emoji:'🔧',color:'#EFF6FF',desc:'Reparación de fugas, tuberías, llaves, instalación sanitaria',price:'Desde $25',timeLabel:'1-2 hrs',rating:'4.8'},
+  {id:'electricista',name:'Electricista',emoji:'⚡',color:'#FFFBEB',desc:'Instalación eléctrica, breakers, tomacorrientes, lámparas',price:'Desde $30',timeLabel:'1-3 hrs',rating:'4.9'},
+  {id:'limpieza',name:'Limpieza del Hogar',emoji:'🧹',color:'#F0FDF4',desc:'Limpieza profunda, regular o por horas. Con equipo propio',price:'Desde $18/hr',timeLabel:'2-4 hrs',rating:'4.7'},
+  {id:'jardineria',name:'Jardinería',emoji:'🌿',color:'#F0FDF4',desc:'Poda, mantenimiento, diseño de jardines y plantas',price:'Desde $20',timeLabel:'2-3 hrs',rating:'4.6'},
+  {id:'pintor',name:'Pintor de Interiores',emoji:'🎨',color:'#FFF1F2',desc:'Pintura residencial, preparación de superficies, sellado',price:'Desde $40',timeLabel:'4-8 hrs',rating:'4.7'},
+  {id:'ac',name:'Técnico Aire Acond.',emoji:'❄️',color:'#EFF6FF',desc:'Limpieza, recarga de gas, reparación de AC doméstico',price:'Desde $35',timeLabel:'1-2 hrs',rating:'4.8'},
+  {id:'mudanza',name:'Mudanza Express',emoji:'🚚',color:'#F5F3FF',desc:'Carga, transporte y acomodado de muebles y enseres',price:'Desde $60',timeLabel:'3-6 hrs',rating:'4.5'},
+  {id:'cerrajero',name:'Cerrajero',emoji:'🔑',color:'#FFFBEB',desc:'Apertura de puertas, cambio de cerraduras, duplicado de llaves',price:'Desde $20',timeLabel:'30-60 min',rating:'4.9'},
+];
+
+var ORDERS_HISTORY = [
+  {id:'ZR-4821',items:'Leche x2, Pan de Molde, Huevos x12',total:6.85,date:'16 Abr 2026',status:'delivered'},
+  {id:'ZR-4790',items:'Paracetamol, Vitamina C, Alcohol 70%',total:8.25,date:'14 Abr 2026',status:'delivered'},
+  {id:'ZR-4755',items:'Pintura blanca, Llave inglesa, Brochas',total:27.99,date:'10 Abr 2026',status:'delivered'},
+];
+
+// ═══════════════════════════════
+// STATE
+// ═══════════════════════════════
+var state = {
+  zone: null,
+  addr: '',
+  cart: [],
+  curCategory: null,
+  curService: null,
+  activeView: 'v-onboard',
+  viewHistory: [],
+  selectedDay: 0,
+  selectedHour: null,
+  selectedPayment: 0,
+  selectedTime: 0,
+};
+
+// ═══════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════
+function showView(id){
+  // Mark current as prev
+  var cur = document.querySelector('.view.active');
+  if(cur && cur.id !== id){
+    cur.classList.remove('active');
+    cur.classList.add('prev');
+    setTimeout(function(){ if(cur)cur.classList.remove('prev'); }, 400);
+    state.viewHistory.push(cur.id);
+  }
+  var el = document.getElementById(id);
+  if(el){ el.classList.add('active'); state.activeView = id; }
+}
+function goBack(){
+  var prev = state.viewHistory.pop() || 'v-home';
+  var cur = document.querySelector('.view.active');
+  if(cur){ cur.classList.remove('active'); }
+  var el = document.getElementById(prev);
+  if(el){ el.classList.add('active'); state.activeView = prev; }
+}
+function goTo(id){
+  state.viewHistory = [];
+  document.querySelectorAll('.view.active,.view.prev').forEach(function(v){ v.classList.remove('active','prev'); });
+  var el = document.getElementById(id);
+  if(el){ el.classList.add('active'); state.activeView = id; }
+}
+function goHome(){
+  state.viewHistory = [];
+  document.querySelectorAll('.view.active,.view.prev').forEach(function(v){ v.classList.remove('active','prev'); });
+  document.getElementById('v-home').classList.add('active');
+  state.activeView = 'v-home';
+}
+
+// ═══════════════════════════════
+// ONBOARDING
+// ═══════════════════════════════
+function startApp(){
+  var zv = document.getElementById('zone-select').value;
+  var av = document.getElementById('addr-input').value.trim();
+  if(!zv){ showToast('Selecciona una zona 📍'); return; }
+  if(!av){ showToast('Ingresa tu dirección 🏠'); return; }
+  state.zone = zv;
+  state.addr = av;
+  var z = ZONES[zv];
+  document.getElementById('home-zone-label').textContent = z.short;
+  document.getElementById('home-addr-label').textContent = '🏠 '+av;
+  document.getElementById('home-provider').textContent = z.provider + ' · Entrega 25–40 min';
+  document.getElementById('profile-zone-name').textContent = z.name;
+  document.getElementById('profile-addr').textContent = av;
+  buildFeatured();
+  goTo('v-home');
+}
+
+// ═══════════════════════════════
+// HOME
+// ═══════════════════════════════
+function buildFeatured(){
+  var items = PRODUCTS.super.slice(0,5).concat(PRODUCTS.farmacia.slice(0,3));
+  var el = document.getElementById('featured-row');
+  el.innerHTML = '';
+  items.forEach(function(p){
+    var d = document.createElement('div');
+    d.className = 'feat-card';
+    d.innerHTML =
+      '<div class="feat-img" style="background:var(--bg)"><span>'+p.emoji+'</span></div>'+
+      '<div class="feat-body">'+
+        '<div class="feat-name">'+p.name+'</div>'+
+        '<div class="feat-store">'+ZONES[state.zone||'z1'].short+'</div>'+
+        '<div class="feat-row">'+
+          '<div class="feat-price">$'+p.price.toFixed(2)+'</div>'+
+          '<div class="feat-add" onclick="event.stopPropagation();addToCart(\''+p.id+'\')">+</div>'+
+        '</div>'+
+      '</div>';
+    d.onclick = function(){ openProduct(p); };
+    el.appendChild(d);
+  });
+}
+
+function switchTab(tab){
+  if(tab==='search'){ openSearch(); return; }
+  if(tab==='cart'){ openCart(); return; }
+  if(tab==='profile'){ showView('v-profile'); return; }
+  if(tab==='home'){ goHome(); return; }
+}
+
+// ═══════════════════════════════
+// CATEGORY
+// ═══════════════════════════════
+var CAT_META = {
+  super:{title:'🛒 Supermercado', filters:['Todos','Básicos','Lácteos','Carnes','Frutas','Verduras','Bebidas','Limpieza']},
+  farmacia:{title:'💊 Farmacia', filters:['Todos','Analgésicos','Vitaminas','Antisépticos','Equipos','Gastro','Dermatolg.']},
+  ferreteria:{title:'🔧 Ferretería', filters:['Todos','Eléctrico','Plomería','Herramientas','Pintura','Adhesivos','Fijaciones']},
+  dollar:{title:'⭐ Todo a $1', filters:['Todos','Cocina','Hogar','Higiene','Oficina','Decoración','Electrónico']},
+  mascotas:{title:'🐾 Mascotas', filters:['Todos','Perros','Gatos','Juguetes','Salud','Accesorios']},
+  servicios:{title:'🏠 Servicios del Hogar', filters:[]},
+};
+
+function openCategory(cat){
+  state.curCategory = cat;
+  var meta = CAT_META[cat] || {title:cat, filters:[]};
+  document.getElementById('cat-title').textContent = meta.title;
+  document.getElementById('cat-provider').textContent =
+    (state.zone ? ZONES[state.zone].provider : 'Proveedor activo') + ' · Zona activa';
+  buildCatFilters(meta.filters);
+  buildCatProducts(cat, 'Todos');
+  showView('v-category');
+}
+
+function buildCatFilters(filters){
+  var el = document.getElementById('cat-filters');
+  el.innerHTML = '';
+  if(!filters.length){ el.style.display='none'; return; }
+  el.style.display = 'flex';
+  filters.forEach(function(f, i){
+    var b = document.createElement('button');
+    b.className = 'filter-chip' + (i===0?' active':'');
+    b.textContent = f;
+    b.onclick = function(){
+      el.querySelectorAll('.filter-chip').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+      buildCatProducts(state.curCategory, f);
+    };
+    el.appendChild(b);
+  });
+}
+
+function buildCatProducts(cat, filter){
+  var el = document.getElementById('cat-products-grid');
+  el.innerHTML = '';
+  if(cat === 'servicios'){
+    var wrap = document.createElement('div');
+    wrap.className = 'svc-list';
+    SERVICES.forEach(function(s){
+      var d = document.createElement('div');
+      d.className = 'svc-card';
+      d.innerHTML =
+        '<div class="svc-icon" style="background:'+s.color+'">'+s.emoji+'</div>'+
+        '<div class="svc-info">'+
+          '<div class="svc-name">'+s.name+'</div>'+
+          '<div class="svc-desc">'+s.desc+'</div>'+
+          '<div class="svc-meta">'+
+            '<div class="svc-price">'+s.price+'</div>'+
+            '<div class="svc-time">⏰ '+s.timeLabel+'</div>'+
+            '<div class="svc-time">⭐ '+s.rating+'</div>'+
+          '</div>'+
+        '</div>'+
+        '<div class="svc-arrow">›</div>';
+      d.onclick = function(){ openService(s.id); };
+      wrap.appendChild(d);
+    });
+    el.appendChild(wrap);
+    return;
+  }
+  var prods = (PRODUCTS[cat]||[]).filter(function(p){
+    return filter==='Todos' || p.cat===filter;
+  });
+  var grid = document.createElement('div');
+  grid.className = 'product-grid';
+  prods.forEach(function(p){
+    var d = document.createElement('div');
+    d.className = 'prod-card';
+    d.innerHTML =
+      '<div class="prod-img" style="background:var(--bg)">'+
+        (p.badge?'<div class="prod-badge">'+p.badge+'</div>':'')+
+        '<span>'+p.emoji+'</span>'+
+      '</div>'+
+      '<div class="prod-body">'+
+        '<div class="prod-name">'+p.name+'</div>'+
+        '<div class="prod-desc">'+p.cat+'</div>'+
+        '<div class="prod-row">'+
+          '<div class="prod-price">$'+p.price.toFixed(2)+'</div>'+
+          '<div class="prod-add" onclick="event.stopPropagation();addToCart(\''+p.id+'\')">+</div>'+
+        '</div>'+
+      '</div>';
+    d.onclick = function(){ openProduct(p); };
+    grid.appendChild(d);
+  });
+  el.appendChild(grid);
+}
+
+// ═══════════════════════════════
+// PRODUCT MODAL (quick add)
+// ═══════════════════════════════
+function openProduct(p){
+  addToCart(p.id);
+}
+
+function findProduct(id){
+  for(var cat in PRODUCTS){
+    var found = PRODUCTS[cat].find(function(p){ return p.id===id; });
+    if(found) return found;
+  }
+  return null;
+}
+
+// ═══════════════════════════════
+// CART
+// ═══════════════════════════════
+function addToCart(id){
+  var p = findProduct(id);
+  if(!p) return;
+  var existing = state.cart.find(function(x){ return x.id===id; });
+  if(existing){ existing.qty++; }
+  else { state.cart.push({id:p.id, name:p.name, emoji:p.emoji, price:p.price, qty:1}); }
+  updateCartBadge();
+  showToast(p.emoji + ' Añadido al carrito');
+}
+
+function updateCartBadge(){
+  var count = state.cart.reduce(function(a,b){ return a+b.qty; }, 0);
+  ['cart-badge-nav','cart-badge-cat'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(!el) return;
+    el.textContent = count;
+    el.style.display = count > 0 ? 'block' : 'none';
+  });
+}
+
+function openCart(){
+  var el = document.getElementById('cart-overlay');
+  el.classList.add('open');
+  renderCartSheet();
+}
+function closeCart(){ document.getElementById('cart-overlay').classList.remove('open'); }
+
+function renderCartSheet(){
+  var listEl = document.getElementById('cart-items-list');
+  var footEl = document.getElementById('cart-footer');
+  if(!state.cart.length){
+    listEl.innerHTML = '<div class="empty-cart"><div class="ec-emoji">🛒</div><p>Tu carrito está vacío</p></div>';
+    footEl.innerHTML = '';
+    return;
+  }
+  listEl.innerHTML = '';
+  state.cart.forEach(function(item){
+    var d = document.createElement('div');
+    d.className = 'cart-item';
+    d.innerHTML =
+      '<div class="cart-item-emoji">'+item.emoji+'</div>'+
+      '<div class="cart-item-info">'+
+        '<div class="cart-item-name">'+item.name+'</div>'+
+        '<div class="cart-item-price">$'+(item.price*item.qty).toFixed(2)+'</div>'+
+      '</div>'+
+      '<div class="cart-item-qty">'+
+        '<div class="qty-btn qty-minus" onclick="changeQty(\''+item.id+'\',-1)">−</div>'+
+        '<div class="qty-num">'+item.qty+'</div>'+
+        '<div class="qty-btn qty-plus" onclick="changeQty(\''+item.id+'\',1)">+</div>'+
+      '</div>';
+    listEl.appendChild(d);
+  });
+  var sub = state.cart.reduce(function(a,b){ return a+b.price*b.qty; }, 0);
+  var delivery = 1.50;
+  var total = sub + delivery;
+  footEl.innerHTML =
+    '<div class="cart-total-row"><span>Subtotal</span><span>$'+sub.toFixed(2)+'</span></div>'+
+    '<div class="cart-total-row"><span>Envío</span><span>$'+delivery.toFixed(2)+'</span></div>'+
+    '<div class="cart-total-row grand"><span>Total</span><span>$'+total.toFixed(2)+'</span></div>'+
+    '<button class="cart-checkout-btn" onclick="goCheckout()">Proceder al pago → $'+total.toFixed(2)+'</button>';
+}
+
+function changeQty(id, delta){
+  var item = state.cart.find(function(x){ return x.id===id; });
+  if(!item) return;
+  item.qty += delta;
+  if(item.qty <= 0){ state.cart = state.cart.filter(function(x){ return x.id!==id; }); }
+  updateCartBadge();
+  renderCartSheet();
+}
+
+// ═══════════════════════════════
+// CHECKOUT
+// ═══════════════════════════════
+function goCheckout(){
+  closeCart();
+  buildCheckout();
+  showView('v-checkout');
+}
+
+function buildCheckout(){
+  // Pre-fill address
+  var addrEl = document.getElementById('co-addr');
+  if(addrEl) addrEl.value = state.addr;
+
+  // Time slots
+  var times = ['ASAP (25-40 min)','10:00 AM','11:30 AM','01:00 PM','02:30 PM','04:00 PM','05:30 PM','07:00 PM'];
+  var slotsEl = document.getElementById('time-slots');
+  slotsEl.innerHTML = '';
+  times.forEach(function(t,i){
+    var b = document.createElement('button');
+    b.className = 'time-slot' + (i===state.selectedTime?' active':'');
+    b.textContent = t;
+    b.onclick = function(){
+      state.selectedTime = i;
+      slotsEl.querySelectorAll('.time-slot').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active');
+    };
+    slotsEl.appendChild(b);
+  });
+
+  // Payment methods
+  var pays = [
+    {icon:'💳',label:'Tarjeta de crédito/débito'},
+    {icon:'📱',label:'Pagos móviles (Tigo Money)'},
+    {icon:'💵',label:'Efectivo al entregar'},
+  ];
+  var payEl = document.getElementById('payment-methods');
+  payEl.innerHTML = '';
+  pays.forEach(function(p,i){
+    var d = document.createElement('div');
+    d.className = 'pay-method' + (i===state.selectedPayment?' active':'');
+    d.innerHTML =
+      '<div class="pay-icon">'+p.icon+'</div>'+
+      '<div class="pay-label">'+p.label+'</div>'+
+      '<div class="pay-radio"><div class="pay-radio-dot"></div></div>';
+    d.onclick = function(){
+      state.selectedPayment = i;
+      payEl.querySelectorAll('.pay-method').forEach(function(x){ x.classList.remove('active'); });
+      d.classList.add('active');
+    };
+    payEl.appendChild(d);
+  });
+
+  // Order summary
+  var summaryEl = document.getElementById('order-summary-list');
+  var sub = state.cart.reduce(function(a,b){ return a+b.price*b.qty; }, 0);
+  var delivery = 1.50;
+  var total = sub + delivery;
+  var html = '';
+  state.cart.forEach(function(item){
+    html += '<div class="summary-item"><span>'+item.emoji+' '+item.name+' x'+item.qty+'</span><span>$'+(item.price*item.qty).toFixed(2)+'</span></div>';
+  });
+  html += '<div class="summary-item"><span>Envío</span><span>$'+delivery.toFixed(2)+'</span></div>';
+  html += '<div class="summary-total"><span>Total a pagar</span><span>$'+total.toFixed(2)+'</span></div>';
+  summaryEl.innerHTML = html;
+}
+
+function placeOrder(){
+  if(!state.cart.length){ showToast('Carrito vacío'); return; }
+  var orderId = 'ZR-' + Math.floor(1000 + Math.random()*9000);
+  document.getElementById('track-order-id').textContent = 'ORDEN #'+orderId;
+  var z = state.zone ? ZONES[state.zone] : ZONES.z1;
+  document.getElementById('driver-name').textContent = z.driver;
+  buildTrackingSteps();
+  ORDERS_HISTORY.unshift({
+    id: orderId,
+    items: state.cart.map(function(x){ return x.name+' x'+x.qty; }).join(', '),
+    total: state.cart.reduce(function(a,b){ return a+b.price*b.qty; },0)+1.5,
+    date: 'Hoy',
+    status: 'transit'
+  });
+  state.cart = [];
+  updateCartBadge();
+  goTo('v-tracking');
+}
+
+// ═══════════════════════════════
+// TRACKING
+// ═══════════════════════════════
+function buildTrackingSteps(){
+  var steps = [
+    {icon:'✅',title:'Pedido confirmado',sub:'Tu pedido fue recibido',time:'Ahora',state:'done'},
+    {icon:'🏪',title:'Preparando pedido',sub:'El proveedor está alistando tu pedido',time:'~5 min',state:'active'},
+    {icon:'🏍',title:'En camino',sub:'Tu repartidor está en ruta',time:'~20 min',state:'pending'},
+    {icon:'🏠',title:'Entregado',sub:'Tu pedido llegó',time:'~35 min',state:'pending'},
+  ];
+  var el = document.getElementById('tracking-steps');
+  el.innerHTML = '';
+  steps.forEach(function(s, i){
+    var wrap = document.createElement('div');
+    wrap.className = 't-step';
+    var leftDiv = document.createElement('div');
+    leftDiv.className = 't-step-left';
+    var dot = document.createElement('div');
+    dot.className = 't-dot '+s.state;
+    dot.textContent = s.icon;
+    leftDiv.appendChild(dot);
+    if(i < steps.length-1){
+      var line = document.createElement('div');
+      line.className = 't-line' + (s.state==='done'?' done':'');
+      leftDiv.appendChild(line);
+    }
+    var content = document.createElement('div');
+    content.className = 't-content';
+    content.innerHTML =
+      '<div class="t-title">'+s.title+'</div>'+
+      '<div class="t-sub">'+s.sub+'</div>'+
+      '<div class="t-time">'+s.time+'</div>';
+    wrap.appendChild(leftDiv);
+    wrap.appendChild(content);
+    el.appendChild(wrap);
+  });
+  // Simulate progress
+  setTimeout(function(){
+    var dots = el.querySelectorAll('.t-dot');
+    var lines = el.querySelectorAll('.t-line');
+    if(dots[2]) dots[2].className = 't-dot active';
+    if(dots[1]) dots[1].className = 't-dot done';
+    if(lines[1]) lines[1].classList.add('done');
+  }, 4000);
+}
+
+// ═══════════════════════════════
+// SERVICES
+// ═══════════════════════════════
+function openService(id){
+  var svc = SERVICES.find(function(s){ return s.id===id; }) || SERVICES[0];
+  state.curService = svc;
+  document.getElementById('svc-title').textContent = svc.name;
+
+  // Header
+  var hdr = document.getElementById('svc-booking-header');
+  hdr.innerHTML =
+    '<div class="svc-booking-icon" style="background:'+svc.color+'">'+svc.emoji+'</div>'+
+    '<div>'+
+      '<div class="svc-booking-name">'+svc.name+'</div>'+
+      '<div class="svc-booking-price">'+svc.price+'</div>'+
+      '<div style="display:flex;gap:8px;margin-top:6px">'+
+        '<span style="font-size:12px;background:var(--bg);padding:4px 10px;border-radius:20px;font-weight:600;color:var(--text2)">⏰ '+svc.timeLabel+'</span>'+
+        '<span style="font-size:12px;background:var(--bg);padding:4px 10px;border-radius:20px;font-weight:600;color:var(--text2)">⭐ '+svc.rating+'</span>'+
+      '</div>'+
+    '</div>';
+
+  // Calendar strip (next 7 days)
+  var calEl = document.getElementById('cal-strip');
+  calEl.innerHTML = '';
+  var days = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  var today = new Date();
+  for(var i=0;i<7;i++){
+    var d = new Date(today); d.setDate(today.getDate()+i);
+    var btn = document.createElement('div');
+    btn.className = 'cal-day' + (i===state.selectedDay?' active':'');
+    btn.innerHTML = '<div class="cal-day-name">'+days[d.getDay()]+'</div><div class="cal-day-num">'+d.getDate()+'</div>';
+    (function(idx){ btn.onclick = function(){
+      state.selectedDay = idx;
+      calEl.querySelectorAll('.cal-day').forEach(function(x){ x.classList.remove('active'); });
+      btn.classList.add('active');
+      buildHourSlots();
+    }; })(i);
+    calEl.appendChild(btn);
+  }
+
+  buildHourSlots();
+
+  // Pre-fill address
+  var addrEl = document.getElementById('svc-addr');
+  if(addrEl) addrEl.value = state.addr;
+
+  // Payment
+  var pays = [{icon:'💳',label:'Tarjeta'},{icon:'📱',label:'Tigo Money'},{icon:'💵',label:'Efectivo'}];
+  var payEl = document.getElementById('svc-payment');
+  payEl.innerHTML = '';
+  pays.forEach(function(p,i){
+    var d = document.createElement('div');
+    d.className = 'pay-method' + (i===0?' active':'');
+    d.innerHTML = '<div class="pay-icon">'+p.icon+'</div><div class="pay-label">'+p.label+'</div><div class="pay-radio"><div class="pay-radio-dot"></div></div>';
+    d.onclick = function(){
+      payEl.querySelectorAll('.pay-method').forEach(function(x){ x.classList.remove('active'); });
+      d.classList.add('active');
+    };
+    payEl.appendChild(d);
+  });
+
+  showView('v-service');
+}
+
+function buildHourSlots(){
+  var slots = ['08:00','09:00','10:00','11:00','13:00','14:00','15:00','16:00','17:00'];
+  var unavail = state.selectedDay===0 ? [0,5] : [3,7];
+  var el = document.getElementById('hour-slots');
+  el.innerHTML = '';
+  slots.forEach(function(t,i){
+    var b = document.createElement('div');
+    var isUnavail = unavail.indexOf(i) > -1;
+    b.className = 'hour-slot' + (isUnavail?' unavail':'') + (i===state.selectedHour&&!isUnavail?' active':'');
+    b.textContent = t;
+    if(!isUnavail){
+      b.onclick = function(){
+        state.selectedHour = i;
+        el.querySelectorAll('.hour-slot:not(.unavail)').forEach(function(x){ x.classList.remove('active'); });
+        b.classList.add('active');
+      };
+    }
+    el.appendChild(b);
+  });
+}
+
+function bookService(){
+  if(state.selectedHour===null){ showToast('Selecciona un horario ⏰'); return; }
+  var orderId = 'SV-' + Math.floor(1000 + Math.random()*9000);
+  document.getElementById('track-order-id').textContent = 'SERVICIO #'+orderId;
+  document.getElementById('driver-name').textContent = state.curService ? state.curService.name : 'Técnico asignado';
+  var stepsEl = document.getElementById('tracking-steps');
+  var steps = [
+    {icon:'✅',title:'Reserva confirmada',sub:'Tu servicio fue agendado',time:'Confirmado',state:'done'},
+    {icon:'👷',title:'Técnico asignado',sub:'Recibirás confirmación por mensaje',time:'Pronto',state:'active'},
+    {icon:'🚗',title:'En camino',sub:'El técnico se dirige a tu dirección',time:'Fecha agendada',state:'pending'},
+    {icon:'✅',title:'Servicio completado',sub:'Califica tu experiencia',time:'Después del servicio',state:'pending'},
+  ];
+  stepsEl.innerHTML = '';
+  steps.forEach(function(s,i){
+    var wrap = document.createElement('div');
+    wrap.className = 't-step';
+    var leftDiv = document.createElement('div');
+    leftDiv.className = 't-step-left';
+    var dot = document.createElement('div');
+    dot.className = 't-dot '+s.state;
+    dot.textContent = s.icon;
+    leftDiv.appendChild(dot);
+    if(i < steps.length-1){
+      var line = document.createElement('div');
+      line.className = 't-line' + (s.state==='done'?' done':'');
+      leftDiv.appendChild(line);
+    }
+    var content = document.createElement('div');
+    content.className = 't-content';
+    content.innerHTML = '<div class="t-title">'+s.title+'</div><div class="t-sub">'+s.sub+'</div><div class="t-time">'+s.time+'</div>';
+    wrap.appendChild(leftDiv);
+    wrap.appendChild(content);
+    stepsEl.appendChild(wrap);
+  });
+  goTo('v-tracking');
+}
+
+// ═══════════════════════════════
+// ORDERS HISTORY
+// ═══════════════════════════════
+function buildOrders(){
+  var el = document.getElementById('orders-list');
+  el.innerHTML = '';
+  ORDERS_HISTORY.forEach(function(o){
+    var d = document.createElement('div');
+    d.className = 'order-card';
+    d.innerHTML =
+      '<div class="order-top">'+
+        '<div class="order-num">📦 #'+o.id+'</div>'+
+        '<div class="order-status status-'+o.status+'">'+(o.status==='delivered'?'✓ Entregado':'🚴 En camino')+'</div>'+
+      '</div>'+
+      '<div class="order-items">'+o.items+'</div>'+
+      '<div class="order-footer">'+
+        '<div class="order-total">$'+o.total.toFixed(2)+'</div>'+
+        '<div class="order-date">'+o.date+'</div>'+
+      '</div>';
+    el.appendChild(d);
+  });
+}
+
+// ═══════════════════════════════
+// SEARCH
+// ═══════════════════════════════
+function openSearch(){
+  document.getElementById('search-overlay').classList.add('open');
+  setTimeout(function(){ document.getElementById('search-input').focus(); }, 100);
+}
+function closeSearch(){
+  document.getElementById('search-overlay').classList.remove('open');
+  document.getElementById('search-input').value = '';
+  document.getElementById('search-results').innerHTML = '';
+}
+function doSearch(q){
+  var el = document.getElementById('search-results');
+  el.innerHTML = '';
+  if(!q || q.length < 2) return;
+  q = q.toLowerCase();
+  var results = [];
+  for(var cat in PRODUCTS){
+    PRODUCTS[cat].forEach(function(p){
+      if(p.name.toLowerCase().indexOf(q) > -1) results.push({p:p,cat:cat});
+    });
+  }
+  SERVICES.forEach(function(s){
+    if(s.name.toLowerCase().indexOf(q) > -1 || s.desc.toLowerCase().indexOf(q) > -1)
+      results.push({s:s});
+  });
+  if(!results.length){
+    el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text3);font-size:14px">Sin resultados para "'+q+'"</div>';
+    return;
+  }
+  results.slice(0,12).forEach(function(r){
+    var d = document.createElement('div');
+    d.className = 'search-result-item';
+    if(r.p){
+      d.innerHTML =
+        '<div class="search-result-emoji">'+r.p.emoji+'</div>'+
+        '<div style="flex:1"><div style="font-size:14px;font-weight:700">'+r.p.name+'</div>'+
+        '<div style="font-size:12px;color:var(--text3)">'+r.p.cat+'</div></div>'+
+        '<div style="font-size:15px;font-weight:800;color:var(--brand)">$'+r.p.price.toFixed(2)+'</div>';
+      d.onclick = function(){ closeSearch(); addToCart(r.p.id); };
+    } else {
+      d.innerHTML =
+        '<div class="search-result-emoji">'+r.s.emoji+'</div>'+
+        '<div style="flex:1"><div style="font-size:14px;font-weight:700">'+r.s.name+'</div>'+
+        '<div style="font-size:12px;color:var(--text3)">Servicio · '+r.s.price+'</div></div>'+
+        '<div style="font-size:13px;font-weight:700;color:var(--blue)">Reservar</div>';
+      d.onclick = function(){ closeSearch(); openService(r.s.id); };
+    }
+    el.appendChild(d);
+  });
+}
+
+// ═══════════════════════════════
+// TOAST
+// ═══════════════════════════════
+var toastTimer;
+function showToast(msg){
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.classList.remove('show'); }, 2200);
+}
+
+// ═══════════════════════════════
+// INIT
+// ═══════════════════════════════
+updateCartBadge();
+</script>
+</body>
+</html>
